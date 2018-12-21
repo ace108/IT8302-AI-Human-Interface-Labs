@@ -1,0 +1,246 @@
+School of Digital Media & Infocomm Technology (DMIT)
+Data Science
+
+Practical 5
+Fulfillment Part 2
+Objectives:
+	After completing this lab, you should be able to:
+•	Create a currency converter bot
+•	Learn to deploy a server app into a cloud platform
+•	Integrate the bot service into a website
+Important Note:
+The code here is suited for DialogFlow V1 API. To switch please go to settings -> Select V1 API -> Save
+To use V2 api, there will be a minor code change (shown below)
+
+Exercise 1. Create a Currency Converter Bot
+
+•	Navigate to console.dialogflow.com
+•	Create a new app agent. 
+•	In the Agent Name textfield -> Give a suitable name.
+•	Click Create
+ 
+
+
+
+
+
+
+
+
+
+Exercise 2. Create an Intent
+•	Create a new intent called convertintent
+•	In the User says section tap a few sample statements to request the conversion of currency
+•	Each statement can include the amount, base currency and target currency.
+Note: Below are some examples:
+•	When done click Save
+
+ 
+Can you convert 15 to usd
+What is 100 gbp to usd
+What is 100 php to usd
+Can you convert 1 php to usd
+What is 50 chf in eur
+What is the equivalent of 20.10 JPY in aud
+What is 200 AUD to GBP
+What is 100 USD to SGD
+What is 1 BTC in USD
+I ETH is how much SGD
+
+
+
+
+
+
+
+Exercise 3. Create Parameters
+
+
+•	Create the following parameters with predefined entities:
+Parameter Name	Entity
+amount	@sys.number
+fromCurrency	@sys.currency-name
+toCurrency	@sys.currency-name
+
+ 
+•	Click Save
+•	In the Text response, type thank you ill process this
+
+
+Exercise 4. Modify Node Server App
+
+•	In Windows PowerShell, navigate to your node.js project folder.
+
+  		 cd appfolder
+
+•	Install the body-parser library. Type the command.
+
+npm install body-parser --save
+
+•	Open app.js in a text editor. Edit the code:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var express = require("express");
+var app = express();
+
+app.get("/",function(req,res){
+res.send('<h1>This is my web app');
+});
+
+
+app.get("/ai",function(req,res){
+var response = "This is a sample response from your webhook!"; 
+
+res.send(JSON.stringify({ "speech": response, 
+					     "displayText": response
+					   }));
+ 
+
+});
+
+
+var listener = app.listen(process.env.PORT,process.env.IP,function(){
+	console.log("server has started");
+	 console.log('Listening on port ' + listener.address().port);
+});
+
+
+
+
+
+Note for Dialog Flow V2 API
+Replace res.send with the below:
+
+res.send(JSON.stringify({  "fulfillmentText": response + "for v2"
+ }));
+
+
+Exercise 5. Test the Node Server App
+
+•	In Windows PowerShell, navigate to your node.js project folder.
+
+  		 cd appfolder
+
+•	Run the app
+node app.js
+
+•	Note the port number is shown in the console
+•	Test it on the website with url: http://127.0.0.1:56259/ai
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Exercise 6. Copy Modified App to Heroku
+
+•	Change the following line of code in app.js to post and save the file. 
+ 
+OLD
+app.get("/ai",function(req,res){
+
+NEW
+app.post("/ai",function(req,res){
+
+
+•	Note: post route cannot be directly tested on the browser. You can use a free software such as postman (https://www.getpostman.com)
+•	In Windows PowerShell, navigate to your node.js project folder.
+
+  		 cd appfolder
+
+•	If you haven't already, log in to your Heroku account
+
+ heroku login
+
+
+
+
+
+
+
+
+•	*Clone the repository 
+If files were previously deployed to Heroku, the steps will be slightly different--there will be a one-time step to clone the repository. 
+
+Cloning will do the following: 
+1.	create a subfolder in appfolder  named yourappname
+2.	It will sync the contents previously uploaded to Heroku to the subfolder yourappname
+3.	 All deployments  (i.e. git add, commit, push etc…) should be done from inside the subfolder
+
+Note to always refer to the deployment steps  found in Heroku website under Deploy->Deploy using Heroku Git 
+
+heroku git:clone -a yourappname
+cd yourappname
+
+•	Deploy your changes
+Inside your appfolder type the following commands
+git add .
+git commit –m “add new route”
+git push heroku master
+
+•	Once added, you can test the website in postman. A screenshot is shown below. Highlighted is the post request and response.
+ 
+
+https://aceaide.herokuapp.com/ai
+
+https://aceweather.herokuapp.com/ai
+
+
+
+
+Exercise 7. Integrate Web App with Fulfillment
+•	Navigate to DialogFlow console
+•	Click Fulfillment
+•	Under webhook place the url of your route
+•	Click Save
+
+
+ 
+•	Navigate to convertintent
+•	Under Fulfillment section
+•	Click Use webhook
+•	Click Save
+
+ 
+
+
+
+
+
+E-Learning Task. Test the Chatbot
+•	In the simulator, type a few currency requests
+•	Note that the chatbot always returns the response from Node Server (Webhook)
+•	Note the JSON response shows that fulfillment was triggered with speech and displayText keys
+ 
+
+
+
+ 
